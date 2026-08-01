@@ -28,7 +28,7 @@ export default async function SinglePage({ params }: PageProps) {
   const next = pageNumber < TOTAL_PAGES ? pageNumber + 1 : null;
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center gap-4 bg-white px-4 py-8">
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center gap-4 bg-white px-4 py-8">
       <div className="flex w-full items-center justify-between text-sm">
         <Link href="/" className="text-teal-700 hover:underline">
           ← Semua halaman

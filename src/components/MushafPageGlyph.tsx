@@ -7,47 +7,69 @@ const BASMALAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَ�
 const BASMALAH_TRANSLATION = "Dengan menyebut nama Allah Yang Maha Pengasih, Maha Penyayang";
 const FONT_BASE = "https://verses.quran.foundation/fonts/quran/hafs/v2/woff2";
 
+// Used only to measure each line's natural glyph width precisely; the real
+// rendered size is computed from it, so the exact value doesn't matter.
+const MEASURE_SIZE = 200;
+
 interface MushafPageGlyphProps {
   data: GlyphPageData;
+  /** Largest a full-width line is allowed to render at. Short/narrow
+   * containers (e.g. thumbnail-ish cards) naturally size down from this. */
+  maxFontSize?: number;
 }
 
-// Renders one physical mushaf line, scaled horizontally to fill the full
-// line width — mimicking the kashida justification of the real print,
-// since a single glyph-per-word run has no spaces to stretch/compress.
-function JustifiedGlyphLine({ text, fontFamily }: { text: string; fontFamily: string }) {
+// Renders one physical mushaf line, sized (not stretched) so its natural
+// width exactly fills the line — real kashida-style justification with no
+// per-word gaps to expand, but without the letterform distortion a
+// horizontal scaleX() trick would introduce.
+function JustifiedGlyphLine({
+  text,
+  fontFamily,
+  maxFontSize,
+}: {
+  text: string;
+  fontFamily: string;
+  maxFontSize: number;
+}) {
   const outerRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLSpanElement>(null);
-  const [scale, setScale] = useState(1);
+  const measureRef = useRef<HTMLSpanElement>(null);
+  const [fontSize, setFontSize] = useState(maxFontSize);
 
   useEffect(() => {
     const outer = outerRef.current;
-    const inner = innerRef.current;
-    if (!outer || !inner) return;
+    const measure = measureRef.current;
+    if (!outer || !measure) return;
     const outerWidth = outer.clientWidth;
-    const innerWidth = inner.scrollWidth;
-    setScale(innerWidth > 0 ? outerWidth / innerWidth : 1);
-  }, [text, fontFamily]);
+    const naturalWidth = measure.scrollWidth;
+    if (naturalWidth > 0) {
+      const ideal = MEASURE_SIZE * (outerWidth / naturalWidth);
+      setFontSize(Math.min(ideal, maxFontSize));
+    }
+  }, [text, fontFamily, maxFontSize]);
 
   return (
-    <div ref={outerRef} className="w-full overflow-hidden" dir="rtl">
+    <div ref={outerRef} className="relative w-full" dir="rtl">
       <span
-        ref={innerRef}
+        ref={measureRef}
+        aria-hidden
         style={{
-          display: "inline-block",
+          position: "absolute",
+          visibility: "hidden",
           whiteSpace: "nowrap",
-          transform: `scaleX(${scale})`,
-          transformOrigin: "right center",
           fontFamily: `"${fontFamily}"`,
+          fontSize: MEASURE_SIZE,
         }}
-        className="text-[28px]"
       >
         {text}
       </span>
+      <div style={{ fontFamily: `"${fontFamily}"`, fontSize, whiteSpace: "nowrap" }}>
+        {text}
+      </div>
     </div>
   );
 }
 
-export default function MushafPageGlyph({ data }: MushafPageGlyphProps) {
+export default function MushafPageGlyph({ data, maxFontSize = 36 }: MushafPageGlyphProps) {
   const fontFamily = `QCFP${data.page}`;
   const [fontReady, setFontReady] = useState(false);
 
@@ -112,6 +134,7 @@ export default function MushafPageGlyph({ data }: MushafPageGlyphProps) {
                 key={idx}
                 text={item.words.map((w) => w.code).join(" ")}
                 fontFamily={fontFamily}
+                maxFontSize={maxFontSize}
               />
             );
           }
