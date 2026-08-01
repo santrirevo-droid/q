@@ -6,6 +6,10 @@ import MushafPageGlyph from "@/components/MushafPageGlyph";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const GRID_COLUMNS = 20;
+// Fixed pixel size — the grid is a large, panned-and-zoomed "poster", not a
+// responsive layout that reflows (and squashes its text unreadable) to fit
+// narrow mobile viewports.
+const CELL_WIDTH = 220;
 
 export default function HomePage() {
   const pages = getAllPages();
@@ -29,7 +33,7 @@ export default function HomePage() {
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
           Mengikuti pembagian halaman standar Mushaf Madinah, disusun dari kanan ke kiri.
-          Klik halaman mana pun untuk membaca dalam ukuran penuh.
+          Geser dan perbesar (pinch-zoom) untuk membaca — atau klik halaman untuk tampilan penuh.
         </p>
       </header>
 
@@ -42,12 +46,17 @@ export default function HomePage() {
         ))}
       </section>
 
-      {/* Grid 600 halaman (20 x 30), diisi dari kanan ke kiri */}
-      <section aria-label="Grid halaman mushaf">
+      {/* Grid 600 halaman (20 x 30): ukuran piksel tetap, di-pan lewat scroll
+          dan dibaca lewat pinch-zoom bawaan browser — bukan layout responsif
+          yang menyusut (dan bikin teksnya tak terbaca) di layar sempit. */}
+      <section aria-label="Grid halaman mushaf" className="w-full overflow-x-auto">
         <div
           dir="rtl"
           className="grid gap-1"
-          style={{ gridTemplateColumns: `repeat(${GRID_COLUMNS}, minmax(0, 1fr))` }}
+          style={{
+            width: CELL_WIDTH * GRID_COLUMNS,
+            gridTemplateColumns: `repeat(${GRID_COLUMNS}, ${CELL_WIDTH}px)`,
+          }}
         >
           {gridPages.map((page) => (
             <Link

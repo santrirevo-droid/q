@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Figtree, Amiri_Quran } from "next/font/google";
 import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
@@ -18,6 +18,15 @@ export const metadata: Metadata = {
   title: "Mushaf Al-Qur'an — 604 Halaman",
   description:
     "Mushaf Al-Qur'an digital, 604 halaman mengikuti pembagian standar Mushaf Madinah.",
+};
+
+// Explicitly allow pinch-zoom well past the default — this site is meant to
+// be explored by zooming into the page grid, not just clicking through it.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 10,
+  userScalable: true,
 };
 
 export default function RootLayout({
