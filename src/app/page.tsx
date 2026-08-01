@@ -1,15 +1,35 @@
 import Link from "next/link";
 import { TOTAL_PAGES } from "@/lib/quran";
-import { getGlyphPage } from "@/lib/glyphPages";
-import MushafPageGlyph from "@/components/MushafPageGlyph";
 import ThemeToggle from "@/components/ThemeToggle";
+import posterManifest from "@/data/poster-manifest.json";
 
 const GRID_COLUMNS = 20;
 // Fixed pixel size — the grid is a large, panned-and-zoomed "poster", not a
-// responsive layout that reflows (and squashes its text unreadable) to fit
-// narrow mobile viewports.
+// responsive layout that reflows to fit narrow mobile viewports. Each cell
+// is a pre-rendered image (see scripts/render-poster-images.mjs), not a
+// live component — 604 of those was too heavy and visibly "changed" while
+// scrolling as fonts loaded in; a plain image grid never does.
 const CELL_WIDTH = 220;
-const CELL_MAX_FONT_SIZE = 26;
+
+type Manifest = Record<string, { width: number; height: number }>;
+const manifest = posterManifest as Manifest;
+
+function PosterImage({ n }: { n: number }) {
+  const dims = manifest[String(n)];
+  return (
+    <Link href={`/page/${n}`} className="block" title={`Halaman ${n}`}>
+      <img
+        src={`/poster/${n}.webp`}
+        alt={`Halaman ${n}`}
+        width={dims?.width}
+        height={dims?.height}
+        loading="lazy"
+        decoding="async"
+        className="w-full border border-gray-200 shadow-sm transition hover:opacity-80 hover:ring-2 hover:ring-teal-600 dark:border-neutral-700"
+      />
+    </Link>
+  );
+}
 
 export default function HomePage() {
   const pageNumbers = Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
@@ -42,51 +62,27 @@ export default function HomePage() {
         </p>
       </header>
 
-      {/* Satu poster 604 halaman berukuran piksel tetap: baris pertama
-          Al-Fatihah, 600 halaman utama, baris terakhir 3 halaman penutup.
-          Di-pan lewat scroll horizontal dan dibaca lewat pinch-zoom bawaan
-          browser — bukan layout responsif yang menyusut di layar sempit.
-          Setiap sel memakai glyph font asli per-halaman (sama seperti
-          tampilan baca penuh), dimuat lazy saat sel mendekati layar supaya
-          tidak memuat 604 font sekaligus. */}
+      {/* Satu poster 604 halaman: gambar statis resolusi tinggi per halaman,
+          disusun dalam grid berukuran piksel tetap. Di-pan lewat scroll
+          horizontal dan dibaca lewat pinch-zoom bawaan browser — tidak ada
+          JS per-sel, jadi tidak ada yang "berubah" saat digeser/di-zoom. */}
       <section aria-label="Semua halaman mushaf" dir="rtl" className="w-full overflow-x-auto">
         <div className="flex flex-col gap-1" style={{ width: gridStyle.width }}>
           <div dir="rtl" className="grid items-start gap-1" style={gridStyle}>
             {openingPages.map((n) => (
-              <Link
-                key={n}
-                href={`/page/${n}`}
-                className="block transition hover:opacity-80 hover:ring-2 hover:ring-teal-600"
-                title={`Halaman ${n}`}
-              >
-                <MushafPageGlyph data={getGlyphPage(n)} maxFontSize={CELL_MAX_FONT_SIZE} lazy />
-              </Link>
+              <PosterImage key={n} n={n} />
             ))}
           </div>
 
           <div dir="rtl" className="grid items-start gap-1" style={gridStyle}>
             {gridPages.map((n) => (
-              <Link
-                key={n}
-                href={`/page/${n}`}
-                className="block transition hover:opacity-80 hover:ring-2 hover:ring-teal-600"
-                title={`Halaman ${n}`}
-              >
-                <MushafPageGlyph data={getGlyphPage(n)} maxFontSize={CELL_MAX_FONT_SIZE} lazy />
-              </Link>
+              <PosterImage key={n} n={n} />
             ))}
           </div>
 
           <div dir="rtl" className="grid items-start gap-1" style={gridStyle}>
             {closingPages.map((n) => (
-              <Link
-                key={n}
-                href={`/page/${n}`}
-                className="block transition hover:opacity-80 hover:ring-2 hover:ring-teal-600"
-                title={`Halaman ${n}`}
-              >
-                <MushafPageGlyph data={getGlyphPage(n)} maxFontSize={CELL_MAX_FONT_SIZE} lazy />
-              </Link>
+              <PosterImage key={n} n={n} />
             ))}
           </div>
         </div>

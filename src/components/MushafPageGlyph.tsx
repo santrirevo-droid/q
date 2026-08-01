@@ -16,6 +16,12 @@ interface MushafPageGlyphProps {
   /** Largest a full-width line is allowed to render at. Short/narrow
    * containers (e.g. thumbnail-ish cards) naturally size down from this. */
   maxFontSize?: number;
+  /** Cap for the surah-name/Bismillah banners specifically. Defaults to a
+   * fraction of maxFontSize so a short banner string doesn't dwarf the
+   * (much longer, so much smaller) ayah lines — pass explicitly when
+   * maxFontSize itself is set artificially high (e.g. the print route,
+   * where it's just "don't ever clip", not a real target line size). */
+  bannerMaxFontSize?: number;
   /** Only fetch this page's font once it scrolls near the viewport, instead
    * of immediately on mount. Needed when many instances render at once
    * (the 604-page grid) — eagerly loading hundreds of font files at once
@@ -52,8 +58,15 @@ function useFitFontSize(text: string, maxFontSize: number) {
 
     recompute();
     if (typeof ResizeObserver === "undefined") return;
+    // Must watch BOTH: outer rarely resizes (it's usually a fixed-width
+    // column), but that's exactly the problem — the hidden measure span is
+    // what actually changes size as the browser finishes laying it out
+    // (e.g. once the real glyph font finishes applying), and a first read
+    // before that settles reports scrollWidth 0, which would otherwise
+    // permanently lock fontSize at the maxFontSize fallback.
     const observer = new ResizeObserver(recompute);
     observer.observe(outer);
+    observer.observe(measure);
     return () => observer.disconnect();
   }, [text, maxFontSize]);
 
@@ -174,6 +187,7 @@ function FitFallbackLine({ words, maxFontSize }: { words: GlyphWord[]; maxFontSi
 export default function MushafPageGlyph({
   data,
   maxFontSize = 36,
+  bannerMaxFontSize,
   lazy = false,
 }: MushafPageGlyphProps) {
   const fontFamily = `QCFP${data.page}`;
@@ -226,16 +240,21 @@ export default function MushafPageGlyph({
     };
   }, [shouldLoad, fontFamily, data.page]);
 
-  const captionSize = Math.max(9, Math.round(maxFontSize * 0.32));
   // The header/basmalah banners should read as roughly one text line, not a
   // giant title — cap them well below maxFontSize so a short string (which
   // would otherwise auto-fit almost to the full cell width) doesn't dwarf
   // the actual ayah lines and blow the page's height out of proportion.
-  const bannerFontSize = Math.max(12, Math.round(maxFontSize * 0.6));
+  const bannerFontSize = bannerMaxFontSize ?? Math.max(12, Math.round(maxFontSize * 0.6));
+  // Derived from bannerFontSize (not maxFontSize directly): when maxFontSize
+  // is set artificially high (the print route uses it as "never clip", not
+  // a real target size), scaling straight off it would blow this caption up
+  // too and overflow the card.
+  const captionSize = Math.max(9, Math.round(bannerFontSize * 0.35));
 
   return (
     <div
       ref={rootRef}
+      data-font-ready={fontReady}
       className="flex w-full flex-col bg-white text-[#272727] dark:bg-neutral-900 dark:text-neutral-100"
     >
       <div
