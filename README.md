@@ -6,8 +6,12 @@ font Amiri Quran).
 
 ## Struktur
 
-- `/` — halaman utama: 2 halaman pembuka, grid poster 604 halaman (20 kolom),
-  2 halaman penutup.
+- `/` — halaman utama:
+  - Halaman pembuka: halaman 1 (Al-Fatihah) dan halaman 2 (awal Al-Baqarah),
+    ditampilkan besar terpisah di atas grid.
+  - Grid poster **600 halaman** (halaman 3–602), 20 kolom × 30 baris.
+  - Halaman penutup: halaman 603–604 (2 halaman terakhir Juz 30),
+    ditampilkan besar terpisah di bawah grid.
 - `/page/[n]` — tampilan penuh satu halaman (1–604) dengan navigasi
   halaman sebelumnya/berikutnya.
 - `src/data/pages/*.json` — 604 file data ayat per halaman, sudah
@@ -23,12 +27,6 @@ npm run dev
 ```
 
 Buka http://localhost:3000
-
-## Menyunting halaman pembuka/penutup
-
-4 halaman ini (2 di awal, 2 di akhir) bukan bagian dari 604 halaman
-Al-Qur'an — isinya placeholder yang bisa disunting bebas di
-`src/app/page.tsx` (komponen `FrontMatterPage`).
 
 ## Catatan akurasi
 
