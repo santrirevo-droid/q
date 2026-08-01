@@ -22,6 +22,8 @@ export default async function SinglePage({ params }: PageProps) {
 
   const data = getPage(pageNumber);
   const glyphData = getGlyphPage(pageNumber);
+  const surahName = data.ayahs[0]?.surah.name ?? "";
+  const juz = data.ayahs[0]?.juz ?? 1;
   const prev = pageNumber > 1 ? pageNumber - 1 : null;
   const next = pageNumber < TOTAL_PAGES ? pageNumber + 1 : null;
 
@@ -31,24 +33,23 @@ export default async function SinglePage({ params }: PageProps) {
         <Link href="/" className="text-teal-700 hover:underline">
           ← Semua halaman
         </Link>
+        <span className="font-arabic text-gray-500">{surahName}</span>
         <span className="text-gray-500">
-          Halaman {pageNumber} / {TOTAL_PAGES}
+          Halaman {pageNumber} · Juz {juz}
         </span>
       </div>
 
-      <MushafPageGlyph
-        data={glyphData}
-        meta={{ juz: data.ayahs[0]?.juz ?? 1, surahName: data.ayahs[0]?.surah.name ?? "" }}
-      />
+      <MushafPageGlyph data={glyphData} />
 
       {/* Navigasi kanan ke kiri: halaman sebelumnya di kanan, berikutnya di kiri */}
       <div dir="rtl" className="flex w-full items-center justify-between">
         {prev ? (
           <Link
             href={`/page/${prev}`}
-            className="rounded border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-teal-600 hover:text-teal-700"
+            dir="ltr"
+            className="flex items-center gap-1 rounded-full border border-gray-300 px-4 py-1.5 text-sm text-gray-700 hover:border-teal-600 hover:text-teal-700"
           >
-            Halaman {prev} →
+            Halaman sebelumnya <span aria-hidden>›</span>
           </Link>
         ) : (
           <span />
@@ -56,9 +57,10 @@ export default async function SinglePage({ params }: PageProps) {
         {next ? (
           <Link
             href={`/page/${next}`}
-            className="rounded border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-teal-600 hover:text-teal-700"
+            dir="ltr"
+            className="flex items-center gap-1 rounded-full border border-gray-300 px-4 py-1.5 text-sm text-gray-700 hover:border-teal-600 hover:text-teal-700"
           >
-            ← Halaman {next}
+            <span aria-hidden>‹</span> Halaman berikutnya
           </Link>
         ) : (
           <span />

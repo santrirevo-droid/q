@@ -7,18 +7,21 @@ dari kanan ke kiri.
 ## Struktur
 
 - `/` — halaman utama:
-  - Halaman pembuka: halaman 1 (Al-Fatihah) dan halaman 2 (awal Al-Baqarah),
-    ditampilkan besar terpisah di atas grid.
-  - Grid poster **600 halaman** (halaman 3–602), 20 kolom × 30 baris,
+  - Halaman pembuka: halaman 1 (Al-Fatihah), ditampilkan besar
+    terpisah di atas grid.
+  - Grid poster **600 halaman** (halaman 2–601), 20 kolom × 30 baris,
     diisi dari kanan ke kiri.
-  - Halaman penutup: halaman 603–604 (2 halaman terakhir Juz 30),
-    ditampilkan besar terpisah di bawah grid.
-- `/page/[n]` — tampilan penuh satu halaman (1–604) dengan navigasi
-  halaman sebelumnya/berikutnya (kanan = sebelumnya, kiri = berikutnya).
+  - Halaman penutup: halaman 602–604 (awal Al-Baqarah + 2 halaman
+    terakhir Juz 30), ditampilkan besar terpisah di bawah grid dalam
+    3 kolom.
+- `/page/[n]` — tampilan penuh satu halaman (1–604), gaya `quran.com`
+  (readingMode=arabic): tanpa bingkai, kartu nama surah, Bismillah,
+  nomor halaman + garis pemisah, dan navigasi halaman
+  sebelumnya/berikutnya (kanan = sebelumnya, kiri = berikutnya).
 
 ## Dua mode render teks Arab
 
-1. **Grid/thumbnail** (`MushafPage.tsx`) — font Amiri Quran biasa,
+1. **Grid/thumbnail** (`MushafThumbnail.tsx`) — font Amiri Quran biasa,
    dipakai untuk 600 thumbnail di grid agar tetap ringan (memuat 600
    font halaman sekaligus tidak realistis).
 2. **Tampilan penuh** (`MushafPageGlyph.tsx`) — dipakai di `/page/[n]`

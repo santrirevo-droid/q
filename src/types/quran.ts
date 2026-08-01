@@ -25,7 +25,7 @@ export interface GlyphWord {
 }
 
 export type GlyphPageItem =
-  | { type: "header"; surahNumber: number; name: string }
+  | { type: "header"; surahNumber: number; name: string; englishName: string }
   | { type: "basmalah" }
   | { type: "line"; line: number; words: GlyphWord[] };
 

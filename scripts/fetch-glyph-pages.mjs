@@ -44,7 +44,9 @@ async function loadSurahNames() {
     const file = path.join(dir, `${String(p).padStart(3, "0")}.json`);
     const json = JSON.parse(await readFile(file, "utf-8"));
     for (const ayah of json.ayahs) {
-      if (!names.has(ayah.surah.number)) names.set(ayah.surah.number, ayah.surah.name);
+      if (!names.has(ayah.surah.number)) {
+        names.set(ayah.surah.number, { name: ayah.surah.name, englishName: ayah.surah.englishName });
+      }
     }
   }
   return names;
@@ -72,10 +74,12 @@ async function run() {
       const items = pages.get(verse.page_number);
 
       if (verse.verse_number === 1) {
+        const surah = surahNames.get(surahNumber);
         items.push({
           type: "header",
           surahNumber,
-          name: surahNames.get(surahNumber) ?? "",
+          name: surah?.name ?? "",
+          englishName: surah?.englishName ?? "",
         });
         if (
           bismillahPre.get(surahNumber) &&

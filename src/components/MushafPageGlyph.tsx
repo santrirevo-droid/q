@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { GlyphPageData } from "@/types/quran";
-import { toArabicNumber } from "@/lib/utils";
 
 const BASMALAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
+const BASMALAH_TRANSLATION = "Dengan menyebut nama Allah Yang Maha Pengasih, Maha Penyayang";
 const FONT_BASE = "https://verses.quran.foundation/fonts/quran/hafs/v2/woff2";
 
 interface MushafPageGlyphProps {
   data: GlyphPageData;
-  meta: { juz: number; surahName: string };
 }
 
 // Renders one physical mushaf line, scaled horizontally to fill the full
@@ -48,7 +47,7 @@ function JustifiedGlyphLine({ text, fontFamily }: { text: string; fontFamily: st
   );
 }
 
-export default function MushafPageGlyph({ data, meta }: MushafPageGlyphProps) {
+export default function MushafPageGlyph({ data }: MushafPageGlyphProps) {
   const fontFamily = `QCFP${data.page}`;
   const [fontReady, setFontReady] = useState(false);
 
@@ -75,29 +74,34 @@ export default function MushafPageGlyph({ data, meta }: MushafPageGlyphProps) {
   }, [fontFamily, data.page]);
 
   return (
-    <div className="relative flex w-full flex-col border border-gray-200 bg-white p-[5%] text-[#272727] shadow-sm">
-      <div className="font-arabic mb-2 flex items-center justify-between text-[11px] tracking-wide text-gray-400">
-        <span>{meta.surahName}</span>
-        <span>الجزء {toArabicNumber(meta.juz)}</span>
-      </div>
-
-      <div className="flex flex-col items-stretch gap-1" dir="rtl">
+    <div className="flex w-full flex-col bg-white text-[#272727]">
+      <div className="flex flex-col items-stretch gap-3" dir="rtl">
         {data.items.map((item, idx) => {
           if (item.type === "header") {
             return (
               <div
                 key={idx}
-                className="font-arabic my-1 rounded border border-gray-200 bg-gray-50 py-1 text-center text-[13px] font-semibold text-gray-800"
+                className="flex flex-col items-center gap-1 rounded-xl bg-gray-50 px-4 py-4 text-center"
               >
-                {item.name}
+                <div className="font-arabic text-2xl font-semibold text-gray-900">
+                  {item.name}
+                </div>
+                <div dir="ltr" className="text-xs text-gray-500">
+                  {item.surahNumber}. {item.englishName}
+                </div>
               </div>
             );
           }
 
           if (item.type === "basmalah") {
             return (
-              <div key={idx} className="font-arabic mb-1 text-center text-[18px] text-gray-800">
-                {BASMALAH}
+              <div key={idx} className="my-2 flex flex-col items-center gap-3 text-center">
+                <div className="font-arabic pb-1 text-2xl leading-normal text-gray-800">
+                  {BASMALAH}
+                </div>
+                <div dir="ltr" className="text-xs text-gray-500">
+                  {BASMALAH_TRANSLATION}
+                </div>
               </div>
             );
           }
@@ -135,8 +139,8 @@ export default function MushafPageGlyph({ data, meta }: MushafPageGlyphProps) {
         })}
       </div>
 
-      <div className="font-arabic mt-2 text-center text-[12px] text-gray-400">
-        {toArabicNumber(data.page)}
+      <div className="mt-4 border-t border-gray-200 pt-3 text-center text-xs text-gray-400">
+        {data.page}
       </div>
     </div>
   );
