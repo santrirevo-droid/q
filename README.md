@@ -22,24 +22,24 @@ dari kanan ke kiri.
 - Tema terang/gelap otomatis mengikuti sistem, dengan tombol switch
   manual (pojok kanan atas).
 
-## Dua mode render teks Arab
+## Render teks Arab (`MushafPageGlyph.tsx`)
 
-1. **Grid/thumbnail** (`MushafThumbnail.tsx`) — font Amiri Quran biasa,
-   dipakai untuk 604 thumbnail di poster beranda agar tetap ringan
-   (memuat 604 font per-halaman sekaligus tidak realistis). Ukuran sel
-   piksel tetap (bukan responsif) supaya teks tidak pernah kolaps jadi
-   tak terbaca di layar sempit — dibaca dengan pinch-zoom.
-2. **Tampilan penuh** (`MushafPageGlyph.tsx`) — dipakai di `/page/[n]`.
-   Merender glyph font per-halaman asli
-   **QCF v2 (KFGQPC — King Fahd Glorious Qur'an Printing Complex)**,
-   font yang sama dipakai quran.com, sehingga baris per halaman
-   sama persis dengan cetakan Mushaf Madinah asli (bukan reflow
-   otomatis browser). Setiap baris di-scale horizontal (meniru kashida
-   justification) agar pas memenuhi lebar halaman seperti cetakan asli.
-   Font dimuat langsung dari CDN Quran Foundation saat halaman dibuka
-   (tidak dibundel di repo — lihat catatan lisensi di bawah); jika CDN
-   tidak terjangkau, otomatis fallback ke teks Unicode + font Amiri
-   Quran supaya halaman tidak pernah kosong.
+Dipakai baik di poster 604-halaman (`/`) maupun tampilan baca penuh
+(`/page/[n]`) — satu komponen, dua ukuran (`maxFontSize`). Merender
+glyph font per-halaman asli **QCF v2 (KFGQPC — King Fahd Glorious
+Qur'an Printing Complex)**, font yang sama dipakai quran.com, sehingga
+baris per halaman sama persis dengan cetakan Mushaf Madinah asli
+(bukan reflow otomatis browser). Setiap baris & teks header/Bismillah
+diukur lalu diberi ukuran font yang pas memenuhi lebar kontainer
+(bukan di-stretch/distorsi) — otomatis menyesuaikan baik di kartu
+besar (`/page/[n]`) maupun sel kecil 220px di poster grid.
+
+Untuk poster 604-halaman, font per-halaman dimuat **lazy** (baru
+di-fetch saat sel mendekati layar, lewat `IntersectionObserver`) —
+memuat 604 font sekaligus tidak realistis. Sebelum termuat (atau jika
+CDN tak terjangkau), otomatis fallback ke teks Unicode + font Amiri
+Quran, dengan mekanisme fit-lebar yang sama supaya ukuran sel tetap
+konsisten walau font asli belum siap.
 
 ## Sumber data
 
