@@ -28,13 +28,13 @@ export default async function SinglePage({ params }: PageProps) {
   const next = pageNumber < TOTAL_PAGES ? pageNumber + 1 : null;
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center gap-4 bg-white px-4 py-8">
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center gap-4 bg-neutral-900 px-4 py-8">
       <div className="flex w-full items-center justify-between text-sm">
-        <Link href="/" className="text-teal-700 hover:underline">
+        <Link href="/" className="text-teal-400 hover:underline">
           ← Semua halaman
         </Link>
-        <span className="font-arabic text-gray-500">{surahName}</span>
-        <span className="text-gray-500">
+        <span className="font-arabic text-neutral-400">{surahName}</span>
+        <span className="text-neutral-400">
           Halaman {pageNumber} · Juz {juz}
         </span>
       </div>
@@ -47,7 +47,7 @@ export default async function SinglePage({ params }: PageProps) {
           <Link
             href={`/page/${prev}`}
             dir="ltr"
-            className="flex items-center gap-1 rounded-full border border-gray-300 px-4 py-1.5 text-sm text-gray-700 hover:border-teal-600 hover:text-teal-700"
+            className="flex items-center gap-1 rounded-full border border-neutral-700 px-4 py-1.5 text-sm text-neutral-300 hover:border-teal-500 hover:text-teal-400"
           >
             Halaman sebelumnya <span aria-hidden>›</span>
           </Link>
@@ -58,7 +58,7 @@ export default async function SinglePage({ params }: PageProps) {
           <Link
             href={`/page/${next}`}
             dir="ltr"
-            className="flex items-center gap-1 rounded-full border border-gray-300 px-4 py-1.5 text-sm text-gray-700 hover:border-teal-600 hover:text-teal-700"
+            className="flex items-center gap-1 rounded-full border border-neutral-700 px-4 py-1.5 text-sm text-neutral-300 hover:border-teal-500 hover:text-teal-400"
           >
             <span aria-hidden>‹</span> Halaman berikutnya
           </Link>
