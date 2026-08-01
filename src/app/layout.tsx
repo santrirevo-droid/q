@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Figtree, Amiri_Quran } from "next/font/google";
+import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
 
 const figtree = Figtree({
@@ -27,9 +28,14 @@ export default function RootLayout({
   return (
     <html
       lang="id"
+      suppressHydrationWarning
       className={`${figtree.variable} ${amiriQuran.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white">{children}</body>
+      <body className="flex min-h-full flex-col bg-white dark:bg-neutral-900">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -96,19 +96,19 @@ export default function MushafPageGlyph({ data, maxFontSize = 36 }: MushafPageGl
   }, [fontFamily, data.page]);
 
   return (
-    <div className="flex w-full flex-col bg-neutral-900 text-neutral-100">
+    <div className="flex w-full flex-col bg-white text-[#272727] dark:bg-neutral-900 dark:text-neutral-100">
       <div className="flex flex-col items-stretch gap-3" dir="rtl">
         {data.items.map((item, idx) => {
           if (item.type === "header") {
             return (
               <div
                 key={idx}
-                className="flex flex-col items-center gap-1 rounded-xl bg-neutral-800 px-4 py-4 text-center"
+                className="flex flex-col items-center gap-1 rounded-xl bg-gray-50 px-4 py-4 text-center dark:bg-neutral-800"
               >
-                <div className="font-arabic text-2xl font-semibold text-white">
+                <div className="font-arabic text-2xl font-semibold text-gray-900 dark:text-white">
                   {item.name}
                 </div>
-                <div dir="ltr" className="text-xs text-neutral-400">
+                <div dir="ltr" className="text-xs text-gray-500 dark:text-neutral-400">
                   {item.surahNumber}. {item.englishName}
                 </div>
               </div>
@@ -118,10 +118,10 @@ export default function MushafPageGlyph({ data, maxFontSize = 36 }: MushafPageGl
           if (item.type === "basmalah") {
             return (
               <div key={idx} className="my-2 flex flex-col items-center gap-3 text-center">
-                <div className="font-arabic pb-1 text-2xl leading-normal text-neutral-100">
+                <div className="font-arabic pb-1 text-2xl leading-normal text-gray-800 dark:text-neutral-100">
                   {BASMALAH}
                 </div>
-                <div dir="ltr" className="text-xs text-neutral-400">
+                <div dir="ltr" className="text-xs text-gray-500 dark:text-neutral-400">
                   {BASMALAH_TRANSLATION}
                 </div>
               </div>
@@ -149,7 +149,7 @@ export default function MushafPageGlyph({ data, maxFontSize = 36 }: MushafPageGl
                 w.kind === "end" ? (
                   <span
                     key={wi}
-                    className="mx-1 inline-flex h-[1.4em] w-[1.4em] items-center justify-center rounded-full border border-neutral-400 align-middle text-[10px] text-neutral-300"
+                    className="mx-1 inline-flex h-[1.4em] w-[1.4em] items-center justify-center rounded-full border border-teal-600 align-middle text-[10px] text-teal-700 dark:border-neutral-400 dark:text-neutral-300"
                   >
                     {w.text}
                   </span>
@@ -162,7 +162,9 @@ export default function MushafPageGlyph({ data, maxFontSize = 36 }: MushafPageGl
         })}
       </div>
 
-      <div className="mt-4 pt-3 text-center text-xs text-neutral-500">{data.page}</div>
+      <div className="mt-4 pt-3 text-center text-xs text-gray-400 dark:text-neutral-500">
+        {data.page}
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { getAllPages } from "@/lib/quran";
 import { getGlyphPage } from "@/lib/glyphPages";
 import MushafThumbnail from "@/components/MushafThumbnail";
 import MushafPageGlyph from "@/components/MushafPageGlyph";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const GRID_COLUMNS = 20;
 
@@ -18,12 +19,15 @@ export default function HomePage() {
   const gridPages = pages.slice(1, -3);
 
   return (
-    <main className="mx-auto flex w-full max-w-[1600px] flex-col gap-10 bg-white px-4 py-10">
-      <header className="text-center">
-        <h1 className="text-2xl font-semibold text-gray-900">
+    <main className="mx-auto flex w-full max-w-[1600px] flex-col gap-10 bg-white px-4 py-10 dark:bg-neutral-900">
+      <header className="relative text-center">
+        <div className="absolute top-0 right-0">
+          <ThemeToggle />
+        </div>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
           Mushaf Al-Qur&apos;an — 604 Halaman
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
           Mengikuti pembagian halaman standar Mushaf Madinah, disusun dari kanan ke kiri.
           Klik halaman mana pun untuk membaca dalam ukuran penuh.
         </p>
