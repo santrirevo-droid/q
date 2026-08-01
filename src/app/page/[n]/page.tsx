@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPage, TOTAL_PAGES } from "@/lib/quran";
-import MushafPage from "@/components/MushafPage";
+import { getGlyphPage } from "@/lib/glyphPages";
+import MushafPageGlyph from "@/components/MushafPageGlyph";
 
 export function generateStaticParams() {
   return Array.from({ length: TOTAL_PAGES }, (_, i) => ({ n: String(i + 1) }));
@@ -20,6 +21,7 @@ export default async function SinglePage({ params }: PageProps) {
   }
 
   const data = getPage(pageNumber);
+  const glyphData = getGlyphPage(pageNumber);
   const prev = pageNumber > 1 ? pageNumber - 1 : null;
   const next = pageNumber < TOTAL_PAGES ? pageNumber + 1 : null;
 
@@ -34,7 +36,10 @@ export default async function SinglePage({ params }: PageProps) {
         </span>
       </div>
 
-      <MushafPage data={data} variant="full" />
+      <MushafPageGlyph
+        data={glyphData}
+        meta={{ juz: data.ayahs[0]?.juz ?? 1, surahName: data.ayahs[0]?.surah.name ?? "" }}
+      />
 
       {/* Navigasi kanan ke kiri: halaman sebelumnya di kanan, berikutnya di kiri */}
       <div dir="rtl" className="flex w-full items-center justify-between">

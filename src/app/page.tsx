@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getAllPages } from "@/lib/quran";
-import MushafPage from "@/components/MushafPage";
+import { getGlyphPage } from "@/lib/glyphPages";
+import MushafThumbnail from "@/components/MushafThumbnail";
+import MushafPageGlyph from "@/components/MushafPageGlyph";
 
 const GRID_COLUMNS = 20;
 
@@ -34,7 +36,10 @@ export default function HomePage() {
       >
         {openingPages.map((page) => (
           <Link key={page.page} href={`/page/${page.page}`} title={`Halaman ${page.page}`}>
-            <MushafPage data={page} variant="full" />
+            <MushafPageGlyph
+              data={getGlyphPage(page.page)}
+              meta={{ juz: page.ayahs[0]?.juz ?? 1, surahName: page.ayahs[0]?.surah.name ?? "" }}
+            />
           </Link>
         ))}
       </section>
@@ -53,7 +58,7 @@ export default function HomePage() {
               className="block transition hover:opacity-80 hover:ring-2 hover:ring-teal-600"
               title={`Halaman ${page.page}`}
             >
-              <MushafPage data={page} variant="thumbnail" />
+              <MushafThumbnail data={page} />
             </Link>
           ))}
         </div>
@@ -67,7 +72,10 @@ export default function HomePage() {
       >
         {closingPages.map((page) => (
           <Link key={page.page} href={`/page/${page.page}`} title={`Halaman ${page.page}`}>
-            <MushafPage data={page} variant="full" />
+            <MushafPageGlyph
+              data={getGlyphPage(page.page)}
+              meta={{ juz: page.ayahs[0]?.juz ?? 1, surahName: page.ayahs[0]?.surah.name ?? "" }}
+            />
           </Link>
         ))}
       </section>
