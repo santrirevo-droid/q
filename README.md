@@ -6,26 +6,31 @@ dari kanan ke kiri.
 
 ## Struktur
 
-- `/` — halaman utama:
-  - Halaman pembuka: halaman 1 (Al-Fatihah), ditampilkan besar
-    terpisah di atas grid.
-  - Grid poster **600 halaman** (halaman 2–601), 20 kolom × 30 baris,
-    diisi dari kanan ke kiri.
-  - Halaman penutup: halaman 602–604 (awal Al-Baqarah + 2 halaman
-    terakhir Juz 30), ditampilkan besar terpisah di bawah grid dalam
-    3 kolom.
+- `/` — satu poster 604 halaman berukuran **piksel tetap** (bukan
+  layout responsif), di-pan lewat scroll horizontal dan dibaca lewat
+  pinch-zoom bawaan browser — tidak wajib klik untuk membaca:
+  - Baris pertama: halaman 1 (Al-Fatihah).
+  - Baris tengah: 600 halaman (halaman 2–601), 20 kolom × 30 baris.
+  - Baris terakhir: halaman 602–604 (awal Al-Baqarah + 2 halaman
+    terakhir Juz 30).
+  - Semua diisi dari kanan ke kiri, ukuran sel sama untuk seluruh
+    604 halaman.
 - `/page/[n]` — tampilan penuh satu halaman (1–604), gaya `quran.com`
   (readingMode=arabic): tanpa bingkai, kartu nama surah, Bismillah,
   nomor halaman + garis pemisah, dan navigasi halaman
   sebelumnya/berikutnya (kanan = sebelumnya, kiri = berikutnya).
+- Tema terang/gelap otomatis mengikuti sistem, dengan tombol switch
+  manual (pojok kanan atas).
 
 ## Dua mode render teks Arab
 
 1. **Grid/thumbnail** (`MushafThumbnail.tsx`) — font Amiri Quran biasa,
-   dipakai untuk 600 thumbnail di grid agar tetap ringan (memuat 600
-   font halaman sekaligus tidak realistis).
-2. **Tampilan penuh** (`MushafPageGlyph.tsx`) — dipakai di `/page/[n]`
-   dan 4 halaman pembuka/penutup. Merender glyph font per-halaman asli
+   dipakai untuk 604 thumbnail di poster beranda agar tetap ringan
+   (memuat 604 font per-halaman sekaligus tidak realistis). Ukuran sel
+   piksel tetap (bukan responsif) supaya teks tidak pernah kolaps jadi
+   tak terbaca di layar sempit — dibaca dengan pinch-zoom.
+2. **Tampilan penuh** (`MushafPageGlyph.tsx`) — dipakai di `/page/[n]`.
+   Merender glyph font per-halaman asli
    **QCF v2 (KFGQPC — King Fahd Glorious Qur'an Printing Complex)**,
    font yang sama dipakai quran.com, sehingga baris per halaman
    sama persis dengan cetakan Mushaf Madinah asli (bukan reflow
