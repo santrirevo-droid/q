@@ -39,19 +39,28 @@ sendiri punya database `AyahInfo` terpisah hanya untuk koordinat
 highlight overlay di atas gambar, bukan untuk merender ulang teksnya
 sebagai Unicode yang bisa diberi warna bebas.
 
-## Dua tingkat resolusi gambar (kenapa tidak terasa berat lagi)
+## Tiga tingkat resolusi gambar (kenapa tidak terasa berat lagi)
 
 Sebelumnya proyek ini memuat 604 gambar resolusi penuh sekaligus di
 beranda (~160MB) — jauh lebih berat dari yang dibutuhkan grid
 overview. `quran_android` sendiri tidak pernah memuat lebih dari satu
 halaman resolusi penuh sekaligus (diunduh on-demand, sesuai ukuran
-layar saat itu). Proyek ini meniru ide itu dengan dua tingkat:
+layar saat itu). Proyek ini meniru ide itu dengan tiga tingkat:
 
-- `public/poster-thumb/{n}.webp` (~33MB total, ~55KB/halaman) — dipakai
-  grid beranda, cukup untuk overview + zoom sedang.
-- `public/poster/{n}.webp` (~159MB total, resolusi penuh) — hanya
-  dimuat satu per satu di `/page/[n]` saat halaman itu benar-benar
-  dibuka.
+- `public/poster-tiny/{n}.webp` (~7MB total, ~12KB/halaman, lebar
+  160px) — dipakai mode "Muat semua sekaligus" di beranda: seluruh
+  604 halaman dimuat langsung tanpa lazy-load, ukurannya kecil sekali
+  jadi tetap ringan.
+- `public/poster-thumb/{n}.webp` (~33MB total, ~55KB/halaman, lebar
+  480px) — mode default "Muat bertahap" di beranda: lazy-loaded
+  seiring scroll, lebih detail untuk overview + zoom sedang.
+- `public/poster/{n}.webp` (~159MB total, resolusi penuh, skala 1.8×
+  dari PDF asli) — hanya dimuat satu per satu di `/page/[n]` saat
+  halaman itu benar-benar dibuka.
+
+Toggle antara mode "Muat bertahap" dan "Muat semua sekaligus" ada di
+`src/components/PosterGrid.tsx` (client component, satu-satunya
+bagian beranda yang butuh interaktivitas).
 
 ## Sumber halaman: ekstraksi langsung dari PDF Mushaf 1441H
 
@@ -104,9 +113,11 @@ Buka http://localhost:3000
 
 ```bash
 node scripts/extract-pdf-pages.mjs
+node scripts/generate-tiny-tier.mjs
 node scripts/build-poster-manifest.mjs
 ```
 
 Butuh waktu beberapa menit (604 halaman) dan akan mengunduh PDF sumber
 (~210MB, di-cache di temp folder sistem agar tidak berulang kali
-diunduh).
+diunduh). `generate-tiny-tier.mjs` cukup cepat — resize dari
+`poster-thumb` yang sudah ada, tidak render ulang PDF.
