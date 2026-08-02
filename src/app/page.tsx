@@ -1,25 +1,32 @@
 import Link from "next/link";
 import { TOTAL_PAGES } from "@/lib/quran";
 import ThemeToggle from "@/components/ThemeToggle";
-import posterManifest from "@/data/poster-manifest.json";
+import thumbManifest from "@/data/poster-thumb-manifest.json";
 
 const GRID_COLUMNS = 20;
 // Fixed pixel size — the grid is a large, panned-and-zoomed "poster", not a
 // responsive layout that reflows to fit narrow mobile viewports. Each cell
-// is a pre-rendered image (see scripts/render-poster-images.mjs), not a
-// live component — 604 of those was too heavy and visibly "changed" while
+// is a pre-rendered image (see scripts/extract-pdf-pages.mjs), not a live
+// component — 604 of those was too heavy and visibly "changed" while
 // scrolling as fonts loaded in; a plain image grid never does.
+//
+// This grid uses the small "poster-thumb" tier, not the full-res "poster"
+// tier /page/[n] uses — 604 full-res images up front was ~160MB. The
+// official Quran.com Android app has the same accuracy-needs-images
+// constraint for the Madani mushaf, and solves the same problem by only
+// ever loading one page's image at a time, sized for the screen; this is
+// the same idea applied to an overview grid instead of a single page.
 const CELL_WIDTH = 220;
 
 type Manifest = Record<string, { width: number; height: number }>;
-const manifest = posterManifest as Manifest;
+const manifest = thumbManifest as Manifest;
 
 function PosterImage({ n }: { n: number }) {
   const dims = manifest[String(n)];
   return (
     <Link href={`/page/${n}`} className="block" title={`Halaman ${n}`}>
       <img
-        src={`/poster/${n}.webp`}
+        src={`/poster-thumb/${n}.webp`}
         alt={`Halaman ${n}`}
         width={dims?.width}
         height={dims?.height}

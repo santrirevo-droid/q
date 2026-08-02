@@ -14,15 +14,44 @@ mengikuti pembagian halaman & baris standar Mushaf Madinah 1441H
   - Baris terakhir: halaman 602–604 (awal Al-Baqarah + 2 halaman
     terakhir Juz 30).
   - Semua diisi dari kanan ke kiri, ukuran sel sama untuk seluruh 604
-    halaman. Setiap sel adalah `<img>` biasa — zero JS per-sel, native
-    `loading="lazy"`, native pinch-zoom, tidak ada yang berubah saat
-    digeser/di-zoom.
-- `/page/[n]` — tampilan penuh satu halaman (1–604): gambar yang sama,
-  ditampilkan lebih besar, dengan navigasi halaman sebelumnya/berikutnya
-  (kanan = sebelumnya, kiri = berikutnya).
+    halaman. Setiap sel adalah `<img>` biasa (tier thumbnail, lihat di
+    bawah) — zero JS per-sel, native `loading="lazy"`, native
+    pinch-zoom, tidak ada yang berubah saat digeser/di-zoom.
+- `/page/[n]` — tampilan penuh satu halaman (1–604): gambar resolusi
+  penuh, dengan navigasi halaman sebelumnya/berikutnya (kanan =
+  sebelumnya, kiri = berikutnya).
 - Tema terang/gelap otomatis mengikuti sistem, dengan tombol switch
   manual (pojok kanan atas). Gambar mushaf sendiri selalu berlatar
-  terang (kertas), hanya elemen di sekitarnya yang ikut berganti tema.
+  terang (kertas) di kedua tema — lihat catatan di bawah kenapa ini
+  disengaja, bukan bug — hanya elemen di sekitarnya (nav, tombol,
+  latar halaman) yang ikut berganti tema.
+
+## Kenapa halaman mushaf tetap terang di dark mode
+
+Ini bukan keterbatasan yang belum sempat diperbaiki — ini bagaimana
+setiap aplikasi Qur'an akurat menanganinya, termasuk app resmi
+Quran.com (`quran/quran_android`, diperiksa langsung untuk proyek
+ini): Mushaf Madinah yang presisi baris-per-baris HANYA bisa dicapai
+lewat gambar/glyph-font per halaman, bukan teks Unicode biasa yang
+di-reflow otomatis — dan halaman itu, seperti kertas cetak asli,
+tidak "dibalik warnanya" mengikuti tema aplikasi. `quran_android`
+sendiri punya database `AyahInfo` terpisah hanya untuk koordinat
+highlight overlay di atas gambar, bukan untuk merender ulang teksnya
+sebagai Unicode yang bisa diberi warna bebas.
+
+## Dua tingkat resolusi gambar (kenapa tidak terasa berat lagi)
+
+Sebelumnya proyek ini memuat 604 gambar resolusi penuh sekaligus di
+beranda (~160MB) — jauh lebih berat dari yang dibutuhkan grid
+overview. `quran_android` sendiri tidak pernah memuat lebih dari satu
+halaman resolusi penuh sekaligus (diunduh on-demand, sesuai ukuran
+layar saat itu). Proyek ini meniru ide itu dengan dua tingkat:
+
+- `public/poster-thumb/{n}.webp` (~33MB total, ~55KB/halaman) — dipakai
+  grid beranda, cukup untuk overview + zoom sedang.
+- `public/poster/{n}.webp` (~159MB total, resolusi penuh) — hanya
+  dimuat satu per satu di `/page/[n]` saat halaman itu benar-benar
+  dibuka.
 
 ## Sumber halaman: ekstraksi langsung dari PDF Mushaf 1441H
 
@@ -44,11 +73,15 @@ sama sekali, murni menyalin apa yang sudah benar.
 - `scripts/extract-pdf-pages.mjs` — mengunduh PDF (di-cache di temp
   folder sistem), lalu untuk tiap halaman 1–604: render ke kanvas
   resolusi tinggi (skala 1.8×) lewat `pdfjs-dist` + `@napi-rs/canvas`,
-  kompres ke WebP (`sharp`, kualitas 80) → `public/poster/{n}.webp`.
+  kompres ke WebP (`sharp`) dua kali dari kanvas yang sama →
+  `public/poster/{n}.webp` (kualitas 80, penuh) dan
+  `public/poster-thumb/{n}.webp` (di-resize ke lebar 480px, kualitas
+  68, buat grid beranda).
 - `scripts/build-poster-manifest.mjs` — baca dimensi tiap gambar hasil
-  ekstraksi → `src/data/poster-manifest.json`, dipakai `/` dan
-  `/page/[n]` supaya `<img width/height>` akurat (tidak ada layout
-  shift saat gambar dimuat).
+  ekstraksi (kedua tier) → `src/data/poster-manifest.json` dan
+  `src/data/poster-thumb-manifest.json`, dipakai `/` dan `/page/[n]`
+  supaya `<img width/height>` akurat (tidak ada layout shift saat
+  gambar dimuat).
 
 ## Sumber data lain
 
