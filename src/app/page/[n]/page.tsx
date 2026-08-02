@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPage, TOTAL_PAGES } from "@/lib/quran";
-import { getGlyphPage } from "@/lib/glyphPages";
-import MushafPageGlyph from "@/components/MushafPageGlyph";
 import ThemeToggle from "@/components/ThemeToggle";
+import posterManifest from "@/data/poster-manifest.json";
 
 export function generateStaticParams() {
   return Array.from({ length: TOTAL_PAGES }, (_, i) => ({ n: String(i + 1) }));
@@ -12,6 +11,9 @@ export function generateStaticParams() {
 interface PageProps {
   params: Promise<{ n: string }>;
 }
+
+type Manifest = Record<string, { width: number; height: number }>;
+const manifest = posterManifest as Manifest;
 
 export default async function SinglePage({ params }: PageProps) {
   const { n } = await params;
@@ -22,9 +24,9 @@ export default async function SinglePage({ params }: PageProps) {
   }
 
   const data = getPage(pageNumber);
-  const glyphData = getGlyphPage(pageNumber);
   const surahName = data.ayahs[0]?.surah.name ?? "";
   const juz = data.ayahs[0]?.juz ?? 1;
+  const dims = manifest[String(pageNumber)];
   const prev = pageNumber > 1 ? pageNumber - 1 : null;
   const next = pageNumber < TOTAL_PAGES ? pageNumber + 1 : null;
 
@@ -43,7 +45,13 @@ export default async function SinglePage({ params }: PageProps) {
         </div>
       </div>
 
-      <MushafPageGlyph data={glyphData} />
+      <img
+        src={`/poster/${pageNumber}.webp`}
+        alt={`Halaman ${pageNumber}`}
+        width={dims?.width}
+        height={dims?.height}
+        className="w-full border border-gray-200 shadow-sm dark:border-neutral-700"
+      />
 
       {/* Navigasi kanan ke kiri: halaman sebelumnya di kanan, berikutnya di kiri */}
       <div dir="rtl" className="flex w-full items-center justify-between">
