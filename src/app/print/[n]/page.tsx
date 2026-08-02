@@ -24,8 +24,9 @@ export const PRINT_WIDTH = 900;
 export const PRINT_MAX_FONT_SIZE = 160;
 // Unlike maxFontSize above, this one DOES bind in practice (banner strings
 // are short) — set to roughly what a normal ayah line settles at, at this
-// width, so the surah-name/Bismillah banners read as one line, not a title.
-export const PRINT_BANNER_MAX_FONT_SIZE = 52;
+// width, so the surah-name/Bismillah banners occupy one of the page's 15
+// line slots like they do on a real Madani Mushaf page, not a taller title.
+export const PRINT_BANNER_MAX_FONT_SIZE = 62;
 
 export default async function PrintPage({ params }: PageProps) {
   const { n } = await params;

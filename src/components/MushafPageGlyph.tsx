@@ -239,11 +239,14 @@ export default function MushafPageGlyph({
     };
   }, [shouldLoad, fontFamily, data.page]);
 
-  // The header/basmalah banners should read as roughly one text line, not a
-  // giant title — cap them well below maxFontSize so a short string (which
-  // would otherwise auto-fit almost to the full cell width) doesn't dwarf
-  // the actual ayah lines and blow the page's height out of proportion.
-  const bannerFontSize = bannerMaxFontSize ?? Math.max(12, Math.round(maxFontSize * 0.6));
+  // A real Madani Mushaf (1441H, KFGQPC) page is always exactly 15 lines —
+  // the surah-name banner and Bismillah each occupy one of those 15 line
+  // slots too, not an extra one on top. So they need to read as close to
+  // one *normal* line's height as everything else, not a bigger title —
+  // cap them just under maxFontSize (not the full-width auto-fit size a
+  // short string would otherwise reach, which would run noticeably taller
+  // than a real ayah line and throw the page off its 15-line rhythm).
+  const bannerFontSize = bannerMaxFontSize ?? Math.max(12, Math.round(maxFontSize * 0.85));
 
   return (
     <div
@@ -261,7 +264,7 @@ export default function MushafPageGlyph({
             return (
               <div
                 key={idx}
-                className="flex flex-col items-center rounded-xl bg-gray-50 px-2 py-2 text-center dark:bg-neutral-800"
+                className="flex flex-col items-center justify-center rounded-md bg-gray-50 text-center dark:bg-neutral-800"
               >
                 <AutoFitText
                   text={item.name}
