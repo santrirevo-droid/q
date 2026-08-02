@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import type { GlyphPageData, GlyphWord } from "@/types/quran";
 
 const BASMALAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
-const BASMALAH_TRANSLATION = "Dengan menyebut nama Allah Yang Maha Pengasih, Maha Penyayang";
 const FONT_BASE = "https://verses.quran.foundation/fonts/quran/hafs/v2/woff2";
 
 // Used only to measure each line's natural glyph width precisely; the real
@@ -245,11 +244,6 @@ export default function MushafPageGlyph({
   // would otherwise auto-fit almost to the full cell width) doesn't dwarf
   // the actual ayah lines and blow the page's height out of proportion.
   const bannerFontSize = bannerMaxFontSize ?? Math.max(12, Math.round(maxFontSize * 0.6));
-  // Derived from bannerFontSize (not maxFontSize directly): when maxFontSize
-  // is set artificially high (the print route uses it as "never clip", not
-  // a real target size), scaling straight off it would blow this caption up
-  // too and overflow the card.
-  const captionSize = Math.max(9, Math.round(bannerFontSize * 0.35));
 
   return (
     <div
@@ -267,39 +261,25 @@ export default function MushafPageGlyph({
             return (
               <div
                 key={idx}
-                className="flex flex-col items-center gap-1 rounded-xl bg-gray-50 px-2 py-2 text-center dark:bg-neutral-800"
+                className="flex flex-col items-center rounded-xl bg-gray-50 px-2 py-2 text-center dark:bg-neutral-800"
               >
                 <AutoFitText
                   text={item.name}
                   maxFontSize={bannerFontSize}
                   className="font-arabic font-semibold text-gray-900 dark:text-white"
                 />
-                <div
-                  dir="ltr"
-                  className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-gray-500 dark:text-neutral-400"
-                  style={{ fontSize: captionSize }}
-                >
-                  {item.surahNumber}. {item.englishName}
-                </div>
               </div>
             );
           }
 
           if (item.type === "basmalah") {
             return (
-              <div key={idx} className="flex flex-col items-center gap-1 text-center">
+              <div key={idx} className="flex flex-col items-center text-center">
                 <AutoFitText
                   text={BASMALAH}
                   maxFontSize={bannerFontSize}
                   className="font-arabic text-gray-800 dark:text-neutral-100"
                 />
-                <div
-                  dir="ltr"
-                  className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-gray-500 dark:text-neutral-400"
-                  style={{ fontSize: captionSize }}
-                >
-                  {BASMALAH_TRANSLATION}
-                </div>
               </div>
             );
           }

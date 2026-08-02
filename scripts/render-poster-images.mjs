@@ -38,24 +38,37 @@ async function run() {
 
   let done = 0;
   const total = endPage - startPage + 1;
+  const failed = [];
 
   for (let n = startPage; n <= endPage; n++) {
-    await page.goto(`${BASE_URL}/print/${n}`, { waitUntil: "load" });
-    // document.fonts.ready doesn't reliably track a FontFace that was
-    // constructed and added manually in JS (as MushafPageGlyph does) rather
-    // than referenced from CSS — wait for the component's own explicit
-    // "font applied" signal instead, or a page silently stays in its
-    // (differently laid out) Unicode-fallback rendering.
-    await page.waitForSelector('#print-card [data-font-ready="true"]', { timeout: 15000 });
-    // One extra frame so the ResizeObserver-driven font-size settles after
-    // the glyph font swaps in.
-    await page.waitForTimeout(150);
+    // Occasional CDN/network hiccups shouldn't kill an hours-long batch —
+    // retry a couple of times before giving up on a page and moving on.
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await page.goto(`${BASE_URL}/print/${n}`, { waitUntil: "load" });
+        // document.fonts.ready doesn't reliably track a FontFace that was
+        // constructed and added manually in JS (as MushafPageGlyph does)
+        // rather than referenced from CSS — wait for the component's own
+        // explicit "font applied" signal instead, or a page silently stays
+        // in its (differently laid out) Unicode-fallback rendering.
+        await page.waitForSelector('#print-card [data-font-ready="true"]', { timeout: 15000 });
+        // One extra frame so the ResizeObserver-driven font-size settles
+        // after the glyph font swaps in.
+        await page.waitForTimeout(150);
 
-    const card = page.locator("#print-card");
-    const pngBuffer = await card.screenshot({ type: "png" });
+        const card = page.locator("#print-card");
+        const pngBuffer = await card.screenshot({ type: "png" });
 
-    const webpBuffer = await sharp(pngBuffer).webp({ quality: WEBP_QUALITY }).toBuffer();
-    await writeFile(path.join(OUT_DIR, `${n}.webp`), webpBuffer);
+        const webpBuffer = await sharp(pngBuffer).webp({ quality: WEBP_QUALITY }).toBuffer();
+        await writeFile(path.join(OUT_DIR, `${n}.webp`), webpBuffer);
+        break;
+      } catch (err) {
+        if (attempt === 3) {
+          failed.push(n);
+          console.error(`\nPage ${n} failed after 3 attempts: ${err.message}`);
+        }
+      }
+    }
 
     done++;
     if (done % 20 === 0 || done === total) {
@@ -66,6 +79,10 @@ async function run() {
 
   await browser.close();
   console.log(`Done. Images written to ${OUT_DIR}`);
+  if (failed.length) {
+    console.warn(`Failed pages (retry these): ${failed.join(", ")}`);
+    process.exitCode = 1;
+  }
 }
 
 run().catch((err) => {
