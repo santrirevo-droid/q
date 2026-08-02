@@ -21,23 +21,22 @@ mengikuti pembagian halaman & baris standar Mushaf Madinah 1441H
   penuh, dengan navigasi halaman sebelumnya/berikutnya (kanan =
   sebelumnya, kiri = berikutnya).
 - Tema terang/gelap otomatis mengikuti sistem, dengan tombol switch
-  manual (pojok kanan atas). Gambar mushaf sendiri selalu berlatar
-  terang (kertas) di kedua tema — lihat catatan di bawah kenapa ini
-  disengaja, bukan bug — hanya elemen di sekitarnya (nav, tombol,
-  latar halaman) yang ikut berganti tema.
+  manual (pojok kanan atas). Termasuk gambar mushaf-nya sendiri — lihat
+  catatan di bawah.
 
-## Kenapa halaman mushaf tetap terang di dark mode
+## Dark mode untuk gambar mushaf: filter invert, bukan render ulang
 
-Ini bukan keterbatasan yang belum sempat diperbaiki — ini bagaimana
-setiap aplikasi Qur'an akurat menanganinya, termasuk app resmi
-Quran.com (`quran/quran_android`, diperiksa langsung untuk proyek
-ini): Mushaf Madinah yang presisi baris-per-baris HANYA bisa dicapai
-lewat gambar/glyph-font per halaman, bukan teks Unicode biasa yang
-di-reflow otomatis — dan halaman itu, seperti kertas cetak asli,
-tidak "dibalik warnanya" mengikuti tema aplikasi. `quran_android`
-sendiri punya database `AyahInfo` terpisah hanya untuk koordinat
-highlight overlay di atas gambar, bukan untuk merender ulang teksnya
-sebagai Unicode yang bisa diberi warna bebas.
+Mushaf Madinah yang presisi baris-per-baris hanya bisa dicapai lewat
+gambar per halaman (lihat catatan PDF di bawah), bukan teks Unicode
+biasa yang bisa diberi warna bebas. Tapi itu bukan berarti gambarnya
+harus selalu terang di dark mode — karena isinya cuma tinta
+hitam di atas kertas putih (grayscale, tanpa warna), CSS `filter:
+invert()` membalik hitam↔putih dengan bersih tanpa distorsi warna,
+menghasilkan tampilan gelap yang tetap terlihat seperti mushaf asli
+(bukan cuma dibiarkan terang di tengah UI gelap). Diterapkan lewat
+`dark:invert dark:brightness-90` di setiap `<img>` mushaf
+(`PosterGrid.tsx` dan `/page/[n]`) — tanpa perlu generate ulang
+gambar versi gelap terpisah.
 
 ## Tiga tingkat resolusi gambar (kenapa tidak terasa berat lagi)
 

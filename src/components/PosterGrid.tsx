@@ -50,7 +50,7 @@ export default function PosterGrid({
           height={dims?.height}
           loading={isAll ? "eager" : "lazy"}
           decoding="async"
-          className="w-full border border-gray-200 shadow-sm transition hover:opacity-80 hover:ring-2 hover:ring-teal-600 dark:border-neutral-700"
+          className="w-full border border-gray-200 shadow-sm transition hover:opacity-80 hover:ring-2 hover:ring-teal-600 dark:border-neutral-700 dark:invert dark:brightness-90"
         />
       </Link>
     );

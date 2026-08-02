@@ -50,7 +50,7 @@ export default async function SinglePage({ params }: PageProps) {
         alt={`Halaman ${pageNumber}`}
         width={dims?.width}
         height={dims?.height}
-        className="w-full border border-gray-200 shadow-sm dark:border-neutral-700"
+        className="w-full border border-gray-200 shadow-sm dark:border-neutral-700 dark:invert dark:brightness-90"
       />
 
       {/* Navigasi kanan ke kiri: halaman sebelumnya di kanan, berikutnya di kiri */}
