@@ -26,8 +26,8 @@ export default function HomePage() {
           Mushaf Al-Qur&apos;an — 604 Halaman
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
-          Mengikuti pembagian halaman standar Mushaf Madinah, disusun dari kanan ke kiri. Geser
-          dan perbesar untuk menjelajah.
+          Mengikuti pembagian halaman standar Mushaf Madinah (1441), susunan 20x30. Geser dan
+          perbesar untuk menjelajah.
         </p>
       </header>
 
