@@ -15,7 +15,6 @@ interface PosterGridProps {
 
 const GRID_COLUMNS = 20;
 const THUMB_CELL_WIDTH = 220;
-const TINY_CELL_WIDTH = 130;
 
 export default function PosterGrid({
   openingPages,
@@ -25,18 +24,23 @@ export default function PosterGrid({
   tinyManifest,
 }: PosterGridProps) {
   // "lazy" = moderate thumbnails, scrolled/lazy-loaded (default — best
-  // balance of legibility and bandwidth).
+  // balance of legibility and bandwidth). Fixed pixel width, panned via
+  // horizontal scroll + pinch-zoom.
   // "all" = every one of the 604 pages loaded immediately, at a size small
-  // enough (~7MB total) that doing so is still cheap.
+  // enough (~7MB total) that doing so is still cheap. Squeezed to fit the
+  // viewport width (columns shrink to fractions) so the whole poster is
+  // visible without horizontal scrolling — thumbnails get very small, and
+  // that's fine for this mode.
   const [mode, setMode] = useState<"lazy" | "all">("lazy");
 
   const isAll = mode === "all";
   const folder = isAll ? "poster-tiny" : "poster-thumb";
   const manifest = isAll ? tinyManifest : thumbManifest;
-  const cellWidth = isAll ? TINY_CELL_WIDTH : THUMB_CELL_WIDTH;
+  const wrapperWidth = isAll ? "100%" : THUMB_CELL_WIDTH * GRID_COLUMNS;
   const gridStyle = {
-    width: cellWidth * GRID_COLUMNS,
-    gridTemplateColumns: `repeat(${GRID_COLUMNS}, ${cellWidth}px)`,
+    gridTemplateColumns: isAll
+      ? `repeat(${GRID_COLUMNS}, minmax(0, 1fr))`
+      : `repeat(${GRID_COLUMNS}, ${THUMB_CELL_WIDTH}px)`,
   };
 
   function PosterImage({ n }: { n: number }) {
@@ -83,8 +87,12 @@ export default function PosterGrid({
         </button>
       </div>
 
-      <section aria-label="Semua halaman mushaf" dir="rtl" className="w-full overflow-x-auto">
-        <div className="flex flex-col gap-1" style={{ width: gridStyle.width }}>
+      <section
+        aria-label="Semua halaman mushaf"
+        dir="rtl"
+        className={isAll ? "w-full" : "w-full overflow-x-auto"}
+      >
+        <div className="flex flex-col gap-1" style={{ width: wrapperWidth }}>
           <div dir="rtl" className="grid items-start gap-1" style={gridStyle}>
             {openingPages.map((n) => (
               <PosterImage key={n} n={n} />
