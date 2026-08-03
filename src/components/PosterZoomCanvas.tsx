@@ -257,7 +257,7 @@ export default function PosterZoomCanvas({
   return (
     <div
       ref={wrapperRef}
-      className="relative h-[80vh] w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-800 dark:bg-neutral-950"
+      className="relative h-full w-full overflow-hidden bg-gray-50 dark:bg-neutral-950"
     >
       {size && (
         <TransformWrapper

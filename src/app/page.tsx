@@ -17,31 +17,33 @@ export default function HomePage() {
   const gridPages = pageNumbers.slice(1, -3);
 
   return (
-    <main className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 bg-white px-4 py-10 dark:bg-neutral-900">
-      <header className="relative text-center">
-        <div className="absolute top-0 right-0">
-          <ThemeToggle />
+    <main className="flex h-dvh w-full flex-col overflow-hidden bg-white dark:bg-neutral-900">
+      <header className="z-20 flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 bg-white px-3 py-1.5 dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="min-w-0 leading-tight">
+          <h1 className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+            Mushaf Al-Qur&apos;an — 604 Halaman
+          </h1>
+          <p className="truncate text-xs text-gray-500 dark:text-neutral-400">
+            Mushaf Madinah (1441), susunan 20x30 — geser dan perbesar untuk menjelajah.
+          </p>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-          Mushaf Al-Qur&apos;an — 604 Halaman
-        </h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
-          Mengikuti pembagian halaman standar Mushaf Madinah (1441), susunan 20x30. Geser dan
-          perbesar untuk menjelajah.
-        </p>
+        <ThemeToggle />
       </header>
 
       {/* Satu poster 604 halaman dalam kanvas zoom/pan kontinu ala peta
-          digital — resolusi gambar naik bertahap (tiny → thumb → full)
-          seiring di-zoom masuk, lihat PosterZoomCanvas.tsx. */}
-      <PosterZoomCanvas
-        openingPages={openingPages}
-        gridPages={gridPages}
-        closingPages={closingPages}
-        thumbManifest={thumbManifest}
-        tinyManifest={tinyManifest}
-        fullManifest={posterManifest}
-      />
+          digital, memenuhi sisa layar — resolusi gambar naik bertahap
+          (tiny → thumb → full) seiring di-zoom masuk, lihat
+          PosterZoomCanvas.tsx. */}
+      <div className="min-h-0 flex-1">
+        <PosterZoomCanvas
+          openingPages={openingPages}
+          gridPages={gridPages}
+          closingPages={closingPages}
+          thumbManifest={thumbManifest}
+          tinyManifest={tinyManifest}
+          fullManifest={posterManifest}
+        />
+      </div>
     </main>
   );
 }
