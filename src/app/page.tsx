@@ -3,6 +3,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import PosterGrid from "@/components/PosterGrid";
 import thumbManifest from "@/data/poster-thumb-manifest.json";
 import tinyManifest from "@/data/poster-tiny-manifest.json";
+import posterManifest from "@/data/poster-manifest.json";
 
 export default function HomePage() {
   const pageNumbers = Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
@@ -25,22 +26,23 @@ export default function HomePage() {
           Mushaf Al-Qur&apos;an — 604 Halaman
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
-          Mengikuti pembagian halaman standar Mushaf Madinah, disusun dari kanan ke kiri.
-          Geser dan perbesar (pinch-zoom) untuk membaca — atau klik halaman untuk tampilan penuh.
+          Mengikuti pembagian halaman standar Mushaf Madinah, disusun dari kanan ke kiri. Geser
+          dan perbesar untuk menjelajah — atau klik halaman untuk tampilan penuh.
         </p>
       </header>
 
-      {/* Satu poster 604 halaman: gambar statis per halaman, disusun dalam
-          grid berukuran piksel tetap. Di-pan lewat scroll horizontal dan
-          dibaca lewat pinch-zoom bawaan browser. Dua mode muat: bertahap
-          (thumbnail sedang, lazy-loaded) atau semua sekaligus (thumbnail
-          sangat kecil, ~7MB total untuk 604 halaman). */}
+      {/* Satu poster 604 halaman. Mode "Muat semua sekaligus" adalah kanvas
+          zoom/pan kontinu ala peta digital — resolusi gambar naik bertahap
+          (tiny → thumb → full) seiring di-zoom masuk. Mode "Muat bertahap"
+          adalah grid datar berukuran piksel tetap, di-pan lewat scroll
+          horizontal + pinch-zoom bawaan browser. */}
       <PosterGrid
         openingPages={openingPages}
         gridPages={gridPages}
         closingPages={closingPages}
         thumbManifest={thumbManifest}
         tinyManifest={tinyManifest}
+        fullManifest={posterManifest}
       />
     </main>
   );

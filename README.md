@@ -6,23 +6,54 @@ mengikuti pembagian halaman & baris standar Mushaf Madinah 1441H
 
 ## Struktur
 
-- `/` — satu poster 604 halaman berukuran **piksel tetap** (bukan
-  layout responsif), di-pan lewat scroll horizontal dan dibaca lewat
-  pinch-zoom bawaan browser — tidak wajib klik untuk membaca:
-  - Baris pertama: halaman 1 (Al-Fatihah).
-  - Baris tengah: 600 halaman (halaman 2–601), 20 kolom × 30 baris.
-  - Baris terakhir: halaman 602–604 (awal Al-Baqarah + 2 halaman
-    terakhir Juz 30).
-  - Semua diisi dari kanan ke kiri, ukuran sel sama untuk seluruh 604
-    halaman. Setiap sel adalah `<img>` biasa (tier thumbnail, lihat di
-    bawah) — zero JS per-sel, native `loading="lazy"`, native
-    pinch-zoom, tidak ada yang berubah saat digeser/di-zoom.
+- `/` — satu poster 604 halaman, dua mode tampilan (tombol pill di atas
+  grid):
+  - **"Muat semua sekaligus"** (default) — kanvas zoom/pan kontinu ala
+    peta digital (`PosterZoomCanvas.tsx`, lihat catatan di bawah): mulai
+    zoomed-out melihat seluruh 604 halaman sekaligus, lalu scroll/pinch
+    untuk zoom terus-menerus ke halaman mana pun tanpa kehilangan
+    detail — resolusi gambar naik otomatis (tiny → thumb → full)
+    seiring di-zoom masuk.
+  - **"Muat bertahap"** — grid datar berukuran **piksel tetap** (bukan
+    layout responsif), di-pan lewat scroll horizontal dan dibaca lewat
+    pinch-zoom bawaan browser. Baris pertama = halaman 1 (Al-Fatihah),
+    baris tengah = 600 halaman (2–601, 20×30), baris terakhir =
+    602–604. Setiap sel `<img>` biasa (tier thumbnail) dengan native
+    `loading="lazy"`.
 - `/page/[n]` — tampilan penuh satu halaman (1–604): gambar resolusi
   penuh, dengan navigasi halaman sebelumnya/berikutnya (kanan =
   sebelumnya, kiri = berikutnya).
 - Tema terang/gelap otomatis mengikuti sistem, dengan tombol switch
   manual (pojok kanan atas). Termasuk gambar mushaf-nya sendiri — lihat
   catatan di bawah.
+
+## Kanvas zoom/pan kontinu (`PosterZoomCanvas.tsx`)
+
+Mode "Muat semua sekaligus" dibangun di atas
+[`react-zoom-pan-pinch`](https://github.com/BetterTyped/react-zoom-pan-pinch)
+untuk gesture (scroll/wheel untuk zoom, drag untuk pan, pinch di
+mobile, double-click/tap untuk zoom cepat), dikombinasikan dengan dua
+teknik agar tetap ringan meski memuat 604 halaman resolusi tinggi:
+
+- **Virtualisasi** lewat `Virtualize` bawaan library — tiap sel
+  ditempatkan di koordinat "dunia" tetap (`x, y` dalam satuan piksel
+  tak-terskala), tapi `<img>`-nya hanya benar-benar dipasang ke DOM
+  saat sel itu (plus margin buffer) tumpang tindih dengan area yang
+  sedang terlihat di layar. Saat zoom-in, ratusan sel di luar layar
+  otomatis dilepas dari DOM.
+- **Tier gambar otomatis** — lebar sel di layar (`lebar sel dunia ×
+  skala saat ini`) dipantau lewat `useTransformEffect`; di bawah ~110px
+  pakai `poster-tiny`, di bawah ~520px pakai `poster-thumb`, di atasnya
+  pakai `poster` (resolusi penuh). Threshold ini sengaja dibuat sebagai
+  "bucket" (bukan dihitung ulang tiap frame) supaya re-render React
+  hanya terjadi beberapa kali sepanjang rentang zoom, bukan tiap piksel
+  gesture.
+
+Posisi tiap halaman di kanvas dihitung langsung dari urutan halaman
+(bukan CSS Grid + `dir="rtl"`) — halaman 1 di kolom paling kanan, lalu
+mengisi ke kiri, turun baris, persis alur baca mushaf — supaya
+matematika virtualisasi (posisi dunia ↔ area layar yang terlihat) tetap
+sederhana.
 
 ## Dark mode untuk gambar mushaf: filter invert, bukan render ulang
 
@@ -47,19 +78,18 @@ halaman resolusi penuh sekaligus (diunduh on-demand, sesuai ukuran
 layar saat itu). Proyek ini meniru ide itu dengan tiga tingkat:
 
 - `public/poster-tiny/{n}.webp` (~7MB total, ~12KB/halaman, lebar
-  160px) — dipakai mode "Muat semua sekaligus" di beranda: seluruh
-  604 halaman dimuat langsung tanpa lazy-load, ukurannya kecil sekali
-  jadi tetap ringan.
+  160px) — dipakai saat kanvas zoom dalam keadaan zoomed-out (sel kecil
+  di layar).
 - `public/poster-thumb/{n}.webp` (~33MB total, ~55KB/halaman, lebar
-  480px) — mode default "Muat bertahap" di beranda: lazy-loaded
-  seiring scroll, lebih detail untuk overview + zoom sedang.
+  480px) — dipakai saat zoom sedang (kanvas), dan sebagai satu-satunya
+  tier di mode "Muat bertahap".
 - `public/poster/{n}.webp` (~159MB total, resolusi penuh, skala 1.8×
-  dari PDF asli) — hanya dimuat satu per satu di `/page/[n]` saat
-  halaman itu benar-benar dibuka.
+  dari PDF asli) — dipakai saat kanvas di-zoom cukup dekat, dan di
+  `/page/[n]` (satu gambar per kunjungan halaman).
 
-Toggle antara mode "Muat bertahap" dan "Muat semua sekaligus" ada di
-`src/components/PosterGrid.tsx` (client component, satu-satunya
-bagian beranda yang butuh interaktivitas).
+Toggle antara mode "Muat semua sekaligus" (kanvas zoom) dan "Muat
+bertahap" (grid datar) ada di `src/components/PosterGrid.tsx` (client
+component, satu-satunya bagian beranda yang butuh interaktivitas).
 
 ## Sumber halaman: ekstraksi langsung dari PDF Mushaf 1441H
 
