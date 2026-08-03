@@ -6,20 +6,12 @@ mengikuti pembagian halaman & baris standar Mushaf Madinah 1441H
 
 ## Struktur
 
-- `/` — satu poster 604 halaman, dua mode tampilan (tombol pill di atas
-  grid):
-  - **"Muat semua sekaligus"** (default) — kanvas zoom/pan kontinu ala
-    peta digital (`PosterZoomCanvas.tsx`, lihat catatan di bawah): mulai
-    zoomed-out melihat seluruh 604 halaman sekaligus, lalu scroll/pinch
-    untuk zoom terus-menerus ke halaman mana pun tanpa kehilangan
-    detail — resolusi gambar naik otomatis (tiny → thumb → full)
-    seiring di-zoom masuk.
-  - **"Muat bertahap"** — grid datar berukuran **piksel tetap** (bukan
-    layout responsif), di-pan lewat scroll horizontal dan dibaca lewat
-    pinch-zoom bawaan browser. Baris pertama = halaman 1 (Al-Fatihah),
-    baris tengah = 600 halaman (2–601, 20×30), baris terakhir =
-    602–604. Setiap sel `<img>` biasa (tier thumbnail) dengan native
-    `loading="lazy"`.
+- `/` — satu poster 604 halaman dalam kanvas zoom/pan kontinu ala peta
+  digital (`PosterZoomCanvas.tsx`, lihat catatan di bawah): mulai
+  zoomed-out melihat seluruh 604 halaman sekaligus, lalu scroll/pinch
+  untuk zoom terus-menerus ke halaman mana pun tanpa kehilangan detail
+  — resolusi gambar naik otomatis (tiny → thumb → full) seiring
+  di-zoom masuk.
 - `/page/[n]` — tampilan penuh satu halaman (1–604): gambar resolusi
   penuh, dengan navigasi halaman sebelumnya/berikutnya (kanan =
   sebelumnya, kiri = berikutnya).
@@ -29,7 +21,7 @@ mengikuti pembagian halaman & baris standar Mushaf Madinah 1441H
 
 ## Kanvas zoom/pan kontinu (`PosterZoomCanvas.tsx`)
 
-Mode "Muat semua sekaligus" dibangun di atas
+Poster beranda dibangun di atas
 [`react-zoom-pan-pinch`](https://github.com/BetterTyped/react-zoom-pan-pinch)
 untuk gesture (scroll/wheel untuk zoom, drag untuk pan, pinch di
 mobile, double-click/tap untuk zoom cepat), dikombinasikan dengan dua
@@ -66,7 +58,7 @@ invert()` membalik hitam↔putih dengan bersih tanpa distorsi warna,
 menghasilkan tampilan gelap yang tetap terlihat seperti mushaf asli
 (bukan cuma dibiarkan terang di tengah UI gelap). Diterapkan lewat
 `dark:invert dark:brightness-90` di setiap `<img>` mushaf
-(`PosterGrid.tsx` dan `/page/[n]`) — tanpa perlu generate ulang
+(`PosterZoomCanvas.tsx` dan `/page/[n]`) — tanpa perlu generate ulang
 gambar versi gelap terpisah.
 
 ## Tiga tingkat resolusi gambar (kenapa tidak terasa berat lagi)
@@ -78,18 +70,13 @@ halaman resolusi penuh sekaligus (diunduh on-demand, sesuai ukuran
 layar saat itu). Proyek ini meniru ide itu dengan tiga tingkat:
 
 - `public/poster-tiny/{n}.webp` (~7MB total, ~12KB/halaman, lebar
-  160px) — dipakai saat kanvas zoom dalam keadaan zoomed-out (sel kecil
-  di layar).
+  160px) — dipakai saat kanvas dalam keadaan zoomed-out (sel kecil di
+  layar).
 - `public/poster-thumb/{n}.webp` (~33MB total, ~55KB/halaman, lebar
-  480px) — dipakai saat zoom sedang (kanvas), dan sebagai satu-satunya
-  tier di mode "Muat bertahap".
+  480px) — dipakai saat zoom sedang.
 - `public/poster/{n}.webp` (~159MB total, resolusi penuh, skala 1.8×
   dari PDF asli) — dipakai saat kanvas di-zoom cukup dekat, dan di
   `/page/[n]` (satu gambar per kunjungan halaman).
-
-Toggle antara mode "Muat semua sekaligus" (kanvas zoom) dan "Muat
-bertahap" (grid datar) ada di `src/components/PosterGrid.tsx` (client
-component, satu-satunya bagian beranda yang butuh interaktivitas).
 
 ## Sumber halaman: ekstraksi langsung dari PDF Mushaf 1441H
 

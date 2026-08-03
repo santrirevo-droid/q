@@ -1,6 +1,6 @@
 import { TOTAL_PAGES } from "@/lib/quran";
 import ThemeToggle from "@/components/ThemeToggle";
-import PosterGrid from "@/components/PosterGrid";
+import PosterZoomCanvas from "@/components/PosterZoomCanvas";
 import thumbManifest from "@/data/poster-thumb-manifest.json";
 import tinyManifest from "@/data/poster-tiny-manifest.json";
 import posterManifest from "@/data/poster-manifest.json";
@@ -27,16 +27,14 @@ export default function HomePage() {
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
           Mengikuti pembagian halaman standar Mushaf Madinah, disusun dari kanan ke kiri. Geser
-          dan perbesar untuk menjelajah — atau klik halaman untuk tampilan penuh.
+          dan perbesar untuk menjelajah.
         </p>
       </header>
 
-      {/* Satu poster 604 halaman. Mode "Muat semua sekaligus" adalah kanvas
-          zoom/pan kontinu ala peta digital — resolusi gambar naik bertahap
-          (tiny → thumb → full) seiring di-zoom masuk. Mode "Muat bertahap"
-          adalah grid datar berukuran piksel tetap, di-pan lewat scroll
-          horizontal + pinch-zoom bawaan browser. */}
-      <PosterGrid
+      {/* Satu poster 604 halaman dalam kanvas zoom/pan kontinu ala peta
+          digital — resolusi gambar naik bertahap (tiny → thumb → full)
+          seiring di-zoom masuk, lihat PosterZoomCanvas.tsx. */}
+      <PosterZoomCanvas
         openingPages={openingPages}
         gridPages={gridPages}
         closingPages={closingPages}
