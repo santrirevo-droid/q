@@ -7,6 +7,7 @@ import {
   Virtualize,
   useControls,
   useTransformEffect,
+  type ReactZoomPanPinchContentRef,
 } from "react-zoom-pan-pinch";
 
 type Manifest = Record<string, { width: number; height: number }>;
@@ -153,7 +154,14 @@ export default function PosterZoomCanvas({
   fullManifest,
 }: PosterZoomCanvasProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const transformRef = useRef<ReactZoomPanPinchContentRef>(null);
   const [size, setSize] = useState<{ width: number; height: number } | null>(null);
+  // While actively zooming with the wheel, ease each small step into the
+  // next with a short CSS transition instead of snapping instantly — turns
+  // a staircase of small scale jumps into a smooth Google Earth-style
+  // glide. Left off during drag/pinch panning so those stay 1:1 with the
+  // pointer (a transition there would feel laggy).
+  const [isWheeling, setIsWheeling] = useState(false);
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -169,6 +177,64 @@ export default function PosterZoomCanvas({
   const totalRows = closingRow + 1;
   const worldWidth = GRID_COLUMNS * STEP_X - GAP;
   const worldHeight = totalRows * STEP_Y - GAP;
+
+  // The library's built-in wheel zoom (disabled below) adds a fixed amount
+  // to the scale per event, which feels fine mid-range but is jarring near
+  // the extremes of a ~130x scale span (min "whole poster" fit ↔ max
+  // full-resolution single page): a step small enough not to slam into
+  // maxScale from minScale is imperceptible once already zoomed in, and
+  // vice versa. Exponential (percentage-based) zoom keeps every wheel
+  // notch feeling like the same relative amount at any zoom level — this
+  // is the actual "Google Earth" sensation, not just a smaller step.
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el || !size) return;
+    let wheelStopTimer: ReturnType<typeof setTimeout> | null = null;
+    const ZOOM_SENSITIVITY = 0.0012;
+
+    function onWheel(event: WheelEvent) {
+      const ctx = transformRef.current;
+      if (!ctx || !el) return;
+      event.preventDefault();
+
+      setIsWheeling(true);
+      if (wheelStopTimer) clearTimeout(wheelStopTimer);
+      wheelStopTimer = setTimeout(() => setIsWheeling(false), 200);
+
+      const { scale, positionX, positionY } = ctx.instance.state;
+      const minScale = ctx.instance.props.minScale ?? scale;
+      const maxScale = ctx.instance.props.maxScale ?? scale;
+      const rect = el.getBoundingClientRect();
+      const screenX = event.clientX - rect.left;
+      const screenY = event.clientY - rect.top;
+      const worldX = (screenX - positionX) / scale;
+      const worldY = (screenY - positionY) / scale;
+
+      const rawScale = scale * Math.exp(-event.deltaY * ZOOM_SENSITIVITY);
+      const newScale = Math.min(maxScale, Math.max(minScale, rawScale));
+      if (newScale === scale) return;
+
+      let newPositionX = screenX - worldX * newScale;
+      let newPositionY = screenY - worldY * newScale;
+
+      const contentW = worldWidth * newScale;
+      const contentH = worldHeight * newScale;
+      const minPosX = Math.min(0, el.clientWidth - contentW);
+      const maxPosX = Math.max(0, el.clientWidth - contentW);
+      const minPosY = Math.min(0, el.clientHeight - contentH);
+      const maxPosY = Math.max(0, el.clientHeight - contentH);
+      newPositionX = Math.min(maxPosX, Math.max(minPosX, newPositionX));
+      newPositionY = Math.min(maxPosY, Math.max(minPosY, newPositionY));
+
+      ctx.setTransform(newPositionX, newPositionY, newScale, 0);
+    }
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      if (wheelStopTimer) clearTimeout(wheelStopTimer);
+    };
+  }, [size, worldWidth, worldHeight]);
 
   const cells = useMemo<Cell[]>(() => {
     const list: Cell[] = [];
@@ -195,6 +261,7 @@ export default function PosterZoomCanvas({
     >
       {size && (
         <TransformWrapper
+          ref={transformRef}
           key={`${size.width}x${size.height}`}
           initialScale={fitScale}
           minScale={fitScale}
@@ -204,11 +271,15 @@ export default function PosterZoomCanvas({
           centerOnInit
           limitToBounds
           doubleClick={{ step: 1.4 }}
-          wheel={{ step: 0.3 }}
+          wheel={{ disabled: true }}
         >
           <TransformComponent
             wrapperStyle={{ width: "100%", height: "100%" }}
-            contentStyle={{ width: worldWidth, height: worldHeight }}
+            contentStyle={{
+              width: worldWidth,
+              height: worldHeight,
+              transition: isWheeling ? "transform 150ms ease-out" : undefined,
+            }}
           >
             <PosterCanvasContent
               cells={cells}
